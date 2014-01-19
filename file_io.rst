@@ -78,6 +78,9 @@ Streamのクローズ処理をAPIに任せてしまう事ができる。
    }
 
 
+なお、Java7で追加された try-with-resources 構文は使えない。
+
+
 InputStream/OutputStream/Reader/Writerの取得
 ============================================
 

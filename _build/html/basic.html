@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -15,7 +13,7 @@
     
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '',
+        URL_ROOT:    './',
         VERSION:     '0.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
@@ -77,7 +75,7 @@
 </div>
 <div class="section" id="id3">
 <h2><a class="toc-backref" href="#id25">ライブラリのインポート</a><a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h2>
-<p>Javaと同様、外部のライブラリを呼び出すにはimport文で使用するパッケージまたはクラスを宣言する。Groovyでは、以下のimportは暗黙的に定義されており、記述を省略できる。</p>
+<p>Javaと同様、外部のライブラリを呼び出すにはimport文で使用するパッケージまたはクラスを宣言する。Groovyでは、以下のimportは暗黙的に宣言されており、記述を省略できる。</p>
 <ul class="simple">
 <li>java.lang.*</li>
 <li>java.io.*</li>
@@ -98,7 +96,7 @@
 </div>
 <div class="section" id="groovy">
 <h2><a class="toc-backref" href="#id27">Groovy の文法について</a><a class="headerlink" href="#groovy" title="Permalink to this headline">¶</a></h2>
-<p>Groovyは、基本的にJavaのソースコードをそのまま読み込ませても動作する。</p>
+<p>GroovyはJavaの文法に似せており、大体の場合において、JavaのコードはそのままGroovyインタプリタに読ませても動作する。</p>
 <p>一方で、動的型付け言語らしい簡略記法や、第一級関数（クロージャ）のような仕組みを取り入れており、Javaよりも大幅に少ないコード量で同様の機能が実現できるようになっている。</p>
 <div class="section" id="id4">
 <h3>括弧、セミコロンの省略<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h3>
@@ -176,12 +174,13 @@
 </div>
 <div class="section" id="id11">
 <h3>コレクションリテラル<a class="headerlink" href="#id11" title="Permalink to this headline">¶</a></h3>
-<p>以下の記述で配列オブジェクトが生成される。</p>
-<div class="highlight-groovy"><div class="highlight"><pre><span class="kt">def</span> <span class="n">l</span> <span class="o">=</span> <span class="o">[</span><span class="mi">1</span><span class="o">,</span> <span class="mi">2</span><span class="o">,</span> <span class="mi">3</span><span class="o">,</span> <span class="mi">4</span><span class="o">]</span>
+<p>以下の記述で配列オブジェクトやコレクションオブジェクトが生成される。</p>
+<div class="highlight-groovy"><div class="highlight"><pre><span class="kt">def</span> <span class="n">a</span> <span class="o">=</span> <span class="o">[</span><span class="mi">1</span><span class="o">,</span> <span class="mi">2</span><span class="o">,</span> <span class="mi">3</span><span class="o">,</span> <span class="mi">4</span><span class="o">]</span>          <span class="c1">// 配列</span>
+<span class="kt">def</span> <span class="n">l</span> <span class="o">=</span> <span class="o">[</span><span class="mi">1</span><span class="o">,</span> <span class="mi">2</span><span class="o">,</span> <span class="mi">3</span><span class="o">,</span> <span class="mi">4</span><span class="o">]</span> <span class="k">as</span> <span class="n">List</span>  <span class="c1">// java.util.Listインスタンス</span>
 </pre></div>
 </div>
-<p>Javaの場合、変数宣言時に限り、<tt class="docutils literal"><span class="pre">Integer[]</span> <span class="pre">l</span> <span class="pre">=</span> <span class="pre">new</span> <span class="pre">Integer[]</span> <span class="pre">{1,</span> <span class="pre">2,</span> <span class="pre">3,</span> <span class="pre">4}</span></tt>のような記述が可能だが、角括弧による配列リテラルは、変数宣言以外でも記述可能。</p>
-<p>配列リテラルのあとに `` as List`` を付加することで、List (java.util.ArrayList)のインスタンスを取得できる。</p>
+<p>Javaと同様に<tt class="docutils literal"><span class="pre">Integer[]</span> <span class="pre">l</span> <span class="pre">=</span> <span class="pre">new</span> <span class="pre">Integer[]</span> <span class="pre">{1,</span> <span class="pre">2,</span> <span class="pre">3,</span> <span class="pre">4}</span></tt>のような記述も可能だが、角括弧による配列リテラルは、変数宣言以外でも記述可能。</p>
+<p>配列リテラルのあとに<tt class="docutils literal"><span class="pre">as</span> <span class="pre">List</span></tt>を付加することで、List (java.util.ArrayList)のインスタンスを取得できる。</p>
 <p>Map（連想配列）のリテラルは以下のように記述する。(java.util.LinkedHashMapインスタンスが得られる)</p>
 <div class="highlight-groovy"><div class="highlight"><pre><span class="kt">def</span> <span class="n">newMap</span> <span class="o">=</span> <span class="o">[</span><span class="n">key1</span> <span class="o">:</span> <span class="n">value1</span><span class="o">,</span> <span class="n">key2</span> <span class="o">:</span> <span class="n">value2</span><span class="o">]</span>
 </pre></div>
@@ -201,15 +200,24 @@
 <p>対して、メソッドやクラス定義内、クロージャ内で定義する変数をローカル変数と呼ぶ。また、スクリプト内であっても、型名や<tt class="docutils literal"><span class="pre">def</span></tt>キーワードで宣言した変数はローカル変数と呼ぶ。</p>
 <p>ソースコードの見た目上、スクリプトはクラスやメソッドといった構造の最上位に見えるが、スクリプト内で定義したローカル変数は、クラスやメソッド内からはアクセス出来ない。(スクリプトのコードはコンパイル時に内部でprivateメソッドに括られるため)</p>
 <p>このため、クラスやメソッド内からも参照できるグローバルスコープの変数を定義する場合はバインディング変数として定義する必要がある。</p>
+<div class="highlight-groovy"><div class="highlight"><pre><span class="kt">def</span> <span class="n">a</span> <span class="o">=</span> <span class="mi">1</span>        <span class="c1">// ローカル変数</span>
+<span class="n">b</span> <span class="o">=</span> <span class="mi">2</span>            <span class="c1">// バインディング変数</span>
+
+<span class="kt">def</span> <span class="nf">func</span><span class="o">()</span> <span class="o">{</span>
+  <span class="n">b</span> <span class="o">=</span> <span class="mi">3</span>          <span class="c1">// 最初に宣言したバインディング変数が書き換わる</span>
+  <span class="n">a</span> <span class="o">=</span> <span class="mi">2</span>          <span class="c1">// エラー。関数外で宣言されたローカル変数 a にはアクセス出来ない</span>
+<span class="o">}</span>
+</pre></div>
+</div>
 </div>
 </div>
 <div class="section" id="id14">
 <h2><a class="toc-backref" href="#id29">演算子</a><a class="headerlink" href="#id14" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="id15">
 <h3>比較演算子<a class="headerlink" href="#id15" title="Permalink to this headline">¶</a></h3>
-<p>Javaでは、例えば<tt class="docutils literal"><span class="pre">==</span></tt>のような比較演算子は、インスタンスが同一かどうかで判定を行うため、プリミティブ型以外で値が同一かどうかを判定する場合はequalsメソッドを用いる必要があった。</p>
-<p>Groovyにおいては、<tt class="docutils literal"><span class="pre">==</span></tt>を使った比較では、内部的にequalsメソッドが呼び出されるため、値が同一かどうかの判定となる。</p>
-<p>また、不等号での比較の際も、内部でcompareToメソッドが呼び出される。このため、たとえオリジナルのクラスであっても、 java.lang.Comparableインタフェースさえ実装していれば、不等号による比較を行えるようになる。</p>
+<p>Groovyにおいては、<tt class="docutils literal"><span class="pre">==</span></tt>を使った比較では、内部的にequalsメソッドが呼び出されるため、インスタンスが同一かどうか（参照先が同一かどうか）で判定するJavaとは動作が異なることに注意。</p>
+<p>例えば、２つの文字列が同一かどうかの比較も、 s1.equals(s2) の代わりに s1 == s2 と書ける。</p>
+<p>また、不等号で比較する際も、内部でcompareToメソッドが呼び出される。このため、たとえオリジナルのクラスであっても、 java.lang.Comparableインタフェースさえ実装していれば、不等号による比較を行えるようになる。</p>
 </div>
 <div class="section" id="null">
 <h3>nullセーフナビゲーション<a class="headerlink" href="#null" title="Permalink to this headline">¶</a></h3>
@@ -254,7 +262,7 @@
 <h3>演算子オーバーロード<a class="headerlink" href="#id19" title="Permalink to this headline">¶</a></h3>
 <p>参考：<a class="reference external" href="http://www.ibm.com/developerworks/jp/java/library/j-pg10255/">http://www.ibm.com/developerworks/jp/java/library/j-pg10255/</a></p>
 <p>Java では、プリミティブ型以外の数値型(BigDecimal等)に対しては通常の数学的演算子(+,* など)が使用できず、add や multply 、equals などのメソッドを使用する必要があるが、Groovy では BigDecimal や BigInteger などの数値型でも数学的演算子が利用可能。</p>
-<p>また、演算子は以下のようなメソッドに対応しており、対応するメソッドを定義しておけば、任意のクラスで数学的演算子による演算が可能になる。</p>
+<p>また、演算子や記号は以下のようなメソッドに対応しており、対応するメソッドを実装しておけば、任意のクラスで数学的演算子による演算が可能になる。</p>
 <table border="1" class="docutils">
 <colgroup>
 <col width="38%" />
@@ -330,7 +338,7 @@
 <td>a.positive()</td>
 </tr>
 <tr class="row-odd"><td>a == b</td>
-<td>a.equals()</td>
+<td>a.equals(b)</td>
 </tr>
 <tr class="row-even"><td>a &lt;=&gt; b</td>
 <td>a.compareTo(b)</td>
@@ -409,7 +417,8 @@
 <div class="section" id="return">
 <h3>return文<a class="headerlink" href="#return" title="Permalink to this headline">¶</a></h3>
 <p>関数やメソッドの末尾にあるreturn文については、<tt class="docutils literal"><span class="pre">return</span></tt>キーワードを省略できる。</p>
-<p>Groovyでは、<tt class="docutils literal"><span class="pre">return</span></tt>キーワードの有無にかかわらず、最後に評価された式の結果が暗黙的に戻り値として返される。ただし、<tt class="docutils literal"><span class="pre">return</span></tt>は、Java同様、関数やメソッドの動作を途中で打ち切る効果を持つ。</p>
+<p>Groovyでは、<tt class="docutils literal"><span class="pre">return</span></tt>キーワードの有無にかかわらず、最後に評価された式の結果が暗黙的に戻り値として返される。</p>
+<p><tt class="docutils literal"><span class="pre">return</span></tt>を明示的に記述した場合、Java同様、関数やメソッドの動作を途中で打ち切る効果を持つ。</p>
 </div>
 <div class="section" id="assert">
 <h3>assert文<a class="headerlink" href="#assert" title="Permalink to this headline">¶</a></h3>
@@ -526,7 +535,7 @@
     </div>
     <div class="footer">
         &copy; Copyright 2013, Kazuyuki ono(@shout_poor).
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.
     </div>
   </body>
 </html>
