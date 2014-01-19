@@ -1,0 +1,298 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>関数型プログラミング &mdash; Groovy memo</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Groovy memo" href="index.html" />
+    <link rel="next" title="コレクション" href="collection.html" />
+    <link rel="prev" title="基礎" href="basic.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="collection.html" title="コレクション"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="basic.html" title="基礎"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Groovy memo</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="id1">
+<h1><a class="toc-backref" href="#id9">関数型プログラミング</a><a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h1>
+<div class="contents topic" id="contents">
+<p class="topic-title first">Contents</p>
+<ul class="simple">
+<li><a class="reference internal" href="#id1" id="id9">関数型プログラミング</a><ul>
+<li><a class="reference internal" href="#id2" id="id10">クロージャ（関数）</a></li>
+<li><a class="reference internal" href="#id3" id="id11">高階関数</a></li>
+<li><a class="reference internal" href="#id4" id="id12">関数合成</a></li>
+<li><a class="reference internal" href="#sam-single-abstrcat-method" id="id13">SAM (Single Abstrcat Method) 型のクロージャによる実装</a></li>
+<li><a class="reference internal" href="#id5" id="id14">永続データ構造、副作用</a></li>
+<li><a class="reference internal" href="#id7" id="id15">再帰</a></li>
+<li><a class="reference internal" href="#id8" id="id16">遅延評価</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="section" id="id2">
+<h2><a class="toc-backref" href="#id10">クロージャ（関数）</a><a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
+<p><em>クロージャ</em>は、Groovyで使用出来る<em>第一級関数</em>であり、メソッドとは区別される。</p>
+<p>第一級関数とは、他の値同様、変数に代入・束縛できたり、他の関数の引数・戻り値として扱える関数のこと。 GoFのStrategy パターンで、引数として受け渡しされるStrategy オブジェクトに近いイメージ。</p>
+<p>メソッドは、 Java文法または<tt class="docutils literal"><span class="pre">def</span></tt>キーワードによって定義される。</p>
+<div class="highlight-groovy"><div class="highlight"><pre><span class="c1">// Javaと同様の文法によるメソッド定義</span>
+<span class="kt">int</span> <span class="nf">methodA</span><span class="o">(</span><span class="kt">int</span> <span class="n">arg1</span><span class="o">,</span> <span class="n">String</span> <span class="n">arg2</span><span class="o">)</span> <span class="o">{</span>
+  <span class="c1">// ... 処理</span>
+  <span class="k">return</span> <span class="n">res</span>
+<span class="o">}</span>
+
+<span class="c1">// 型を省略する場合は def キーワードを使用する。</span>
+<span class="kt">def</span> <span class="nf">methodA</span><span class="o">(</span><span class="n">arg1</span><span class="o">,</span> <span class="n">arg2</span><span class="o">)</span> <span class="o">{</span>
+  <span class="c1">// ... 処理</span>
+  <span class="k">return</span> <span class="n">res</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+<p>クロージャは、以下のように定義する。</p>
+<div class="highlight-groovy"><div class="highlight"><pre><span class="c1">// クロージャの例</span>
+<span class="c1">// ここでの def キーワードは、メソッドではなく</span>
+<span class="c1">// 変数 closureA の宣言を行なっていることに注意</span>
+<span class="kt">def</span> <span class="n">closureA</span> <span class="o">=</span> <span class="o">{</span><span class="n">arg1</span><span class="o">,</span> <span class="n">arg2</span> <span class="o">-&gt;</span>
+  <span class="c1">// ... 処理</span>
+  <span class="k">return</span> <span class="n">res</span>
+<span class="o">}</span>
+
+<span class="c1">// 引数リストおよび「-&gt;」を省略すると、引数を一つとるクロージャとなる。</span>
+<span class="c1">// 仮引数名は自動的に「it」となる。</span>
+<span class="kt">def</span> <span class="n">closureB</span> <span class="o">=</span> <span class="o">{</span>
+  <span class="k">if</span> <span class="o">(</span><span class="n">it</span> <span class="o">==</span> <span class="s2">&quot;hoge&quot;</span><span class="o">)</span>
+  <span class="c1">// ... 処理</span>
+<span class="o">}</span>
+
+<span class="c1">// 引数を取らないクロージャの場合、引数リストを書かず「-&gt;」のみ書く</span>
+<span class="kt">def</span> <span class="n">closureC</span> <span class="o">=</span> <span class="o">{</span> <span class="o">-&gt;</span>
+  <span class="c1">// ... 処理</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+<p>また、<tt class="docutils literal"><span class="pre">.&amp;</span></tt>演算子でメソッドからクロージャを生成することができる。</p>
+<div class="highlight-groovy"><div class="highlight"><pre><span class="kt">def</span> <span class="n">closure</span> <span class="o">=</span> <span class="n">a</span><span class="o">.&amp;</span><span class="n">method1</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id3">
+<h2><a class="toc-backref" href="#id11">高階関数</a><a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h2>
+<p>クロージャの主な用途としては、<em>高階関数</em>への利用が挙げられる。</p>
+<p>高階関数は、引数で他の関数を受け取り内部で利用する関数、あるいは戻り値として値ではなく関数を返す関数のこと。StrategyパターンにおけるContextに相当する。</p>
+<p>Groovyでは、制御構造やコレクションメソッドなどの標準APIの多くが、高階関数として提供されている。</p>
+<div class="highlight-groovy"><div class="highlight"><pre><span class="kt">def</span> <span class="n">closureA</span> <span class="o">=</span> <span class="o">{</span> <span class="n">println</span> <span class="s2">&quot;hello&quot;</span> <span class="o">}</span>
+
+<span class="c1">// 高階関数「(Integer値).times」は、引数で渡したクロージャをInteger値回数繰り返す</span>
+<span class="mi">5</span><span class="o">.</span><span class="na">times</span><span class="o">(</span><span class="n">closureA</span><span class="o">)</span>
+</pre></div>
+</div>
+<p>一度きりの利用であれば、上記のように変数に代入する必要はなく、高階関数の引数に直接クロージャを記述できる。</p>
+<div class="highlight-groovy"><div class="highlight"><pre><span class="mi">5</span><span class="o">.</span><span class="na">times</span> <span class="o">{</span> <span class="n">println</span> <span class="s2">&quot;hello&quot;</span><span class="o">}</span>
+</pre></div>
+</div>
+<p>なお、クロージャは実行時はClosure型のインスタンスとなるので、自分で高階関数を定義する場合は、Closure型の引数を受け取るように定義するとよい。</p>
+<div class="highlight-groovy"><div class="highlight"><pre><span class="kt">def</span> <span class="nf">higher</span><span class="o">(</span><span class="n">Closure</span> <span class="n">cl</span><span class="o">)</span> <span class="o">{</span>
+  <span class="c1">// ... 前処理</span>
+  <span class="n">cl</span><span class="o">.</span><span class="na">call</span><span class="o">()</span>     <span class="c1">// 引数で渡されたクロージャの実行</span>
+  <span class="c1">// ... 後処理</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id4">
+<h2><a class="toc-backref" href="#id12">関数合成</a><a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h2>
+<p>クロージャ同士での関数合成は以下のように書ける。</p>
+<div class="highlight-groovy"><div class="highlight"><pre><span class="kt">def</span> <span class="n">f</span> <span class="o">=</span> <span class="o">{</span> <span class="n">x</span> <span class="o">-&gt;</span> <span class="n">x</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">}</span>    <span class="c1">// 関数 f(x)</span>
+<span class="kt">def</span> <span class="n">g</span> <span class="o">=</span> <span class="o">{</span> <span class="n">x</span> <span class="o">-&gt;</span> <span class="n">x</span> <span class="o">+</span> <span class="mi">3</span> <span class="o">}</span>    <span class="c1">// 関数 g(x)</span>
+
+<span class="kt">def</span> <span class="n">fg</span> <span class="o">=</span> <span class="o">(</span><span class="n">f</span> <span class="o">&lt;&lt;</span> <span class="n">g</span><span class="o">)</span>   <span class="c1">// f(g(x)) と等価</span>
+<span class="kt">def</span> <span class="n">gf</span> <span class="o">=</span> <span class="o">(</span><span class="n">f</span> <span class="o">&gt;&gt;</span> <span class="n">g</span><span class="o">)</span>   <span class="c1">// g(f(x)) と等価</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="sam-single-abstrcat-method">
+<h2><a class="toc-backref" href="#id13">SAM (Single Abstrcat Method) 型のクロージャによる実装</a><a class="headerlink" href="#sam-single-abstrcat-method" title="Permalink to this headline">¶</a></h2>
+<p>メソッド一つだけからなるinterface(<em>SAM型</em>)の実装は、クロージャで簡単に記述できる。</p>
+<p>Javaの場合：</p>
+<div class="highlight-java"><div class="highlight"><pre><span class="n">Runnable</span> <span class="n">runnable</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Runnable</span><span class="o">()</span> <span class="o">{</span>
+  <span class="kt">void</span> <span class="nf">run</span><span class="o">()</span> <span class="o">{</span>
+    <span class="c1">// 処理</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+<p>Groovyでクロージャを使用した場合：</p>
+<div class="highlight-groovy"><div class="highlight"><pre><span class="kt">def</span> <span class="n">runnable</span> <span class="o">=</span> <span class="o">{</span>
+  <span class="c1">// 処理</span>
+<span class="o">}</span> <span class="k">as</span> <span class="n">Runnable</span>
+</pre></div>
+</div>
+<p>クロージャとして記述した関数は、SAM型内で定義されたメソッドに自動的にマップされる。</p>
+<p>これを利用して、SAM型のオブジェクトを引数にとるJavaのAPIを高階関数のように利用することができる。例えばJava6のConcurrentAPIによる並行処理を、以下のように記述できる。</p>
+<div class="highlight-groovy"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">java.util.concurrent.Executors</span>
+
+<span class="kt">def</span> <span class="n">ex</span> <span class="o">=</span> <span class="n">Executors</span><span class="o">.</span><span class="na">newSingleThreadExecutor</span><span class="o">()</span>
+<span class="kt">def</span> <span class="n">future</span> <span class="o">=</span> <span class="n">ex</span><span class="o">.</span><span class="na">submit</span> <span class="o">{</span>
+  <span class="c1">// 並行タスク</span>
+<span class="o">}</span>      <span class="c1">// ※SAM型を引数にとるメソッド渡すクロージャは、asによる型指定を省略可</span>
+
+<span class="c1">// 主タスク ...</span>
+
+<span class="n">future</span><span class="o">.</span><span class="na">get</span><span class="o">()</span>  <span class="c1">// 並行タスクの終了を待つ</span>
+<span class="n">ex</span><span class="o">.</span><span class="na">shutdown</span><span class="o">()</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id5">
+<h2><a class="toc-backref" href="#id14">永続データ構造、副作用</a><a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="final">
+<h3>finalキーワードの扱い<a class="headerlink" href="#final" title="Permalink to this headline">¶</a></h3>
+<p>Groovyでは、変数への再代入を制限できない。</p>
+<p>Javaと同様、Groovyでも変数宣言・初期化時にfinalキーワードを付与することができるが、無視される。（finalを指定された変数も再代入可能）</p>
+</div>
+<div class="section" id="id6">
+<h3>イミュータブルコレクション<a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h3>
+<p>Groovyのコレクション型（List、Map等）は、デフォルトではミュータブル（変更可能）だが、<tt class="docutils literal"><span class="pre">asImmutable</span></tt>メソッドでイミュータブル（変更不可）のオブジェクトを取得できる。</p>
+<p>ここで取得されるイミュータブルオブジェクトは、JavaAPIの<tt class="docutils literal"><span class="pre">java.util.Collections</span></tt>に含まれる<tt class="docutils literal"><span class="pre">unmodifiableCollection</span></tt>メソッドで返されるものと同一。従って、<tt class="docutils literal"><span class="pre">asImmutable</span></tt>で取得したオブジェクトに対し、中身を書き換えるような操作を行うと、<tt class="docutils literal"><span class="pre">UnsupportedOperationException</span></tt>がthrowされる。</p>
+</div>
+<div class="section" id="immutable">
+<h3>Immutableアノテーションを使ったイミュータブル型の定義<a class="headerlink" href="#immutable" title="Permalink to this headline">¶</a></h3>
+<p>クラス定義にImmutableアノテーションを付与することで、そのクラスのインスタンスは変更不可能であることが保証される。</p>
+<p>（実際は、インスタンス変数が書き換わるコードが実行される時点で<tt class="docutils literal"><span class="pre">ReadOnlyPropertyException</span></tt>がthrowされる）</p>
+<p>なお、C++のconstのように、ミュータブルな型のインスタンスをイミュータブルなものとして扱うことはできない模様（残念）。</p>
+<div class="highlight-groovy"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">groovy.transform.Immutable</span>
+
+<span class="nd">@Immutable</span> <span class="kd">class</span> <span class="nc">Hoge</span> <span class="o">{</span>
+  <span class="n">String</span> <span class="n">a</span>
+  <span class="kt">int</span> <span class="n">b</span>
+<span class="o">}</span>
+
+<span class="kt">def</span> <span class="n">h</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Hoge</span><span class="o">(</span><span class="nl">a:</span> <span class="s2">&quot;fuga&quot;</span><span class="o">,</span> <span class="nl">b:</span> <span class="mi">3</span><span class="o">)</span>
+<span class="n">h</span><span class="o">.</span><span class="na">a</span> <span class="o">=</span> <span class="s2">&quot;baa&quot;</span>                       <span class="c1">// ReadOnlyPropertyExceptionがthrowされる</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="id7">
+<h2><a class="toc-backref" href="#id15">再帰</a><a class="headerlink" href="#id7" title="Permalink to this headline">¶</a></h2>
+<p>Groovyでは、クロージャ内で<tt class="docutils literal"><span class="pre">call</span></tt>キーワードを用いて自分自身の再帰呼び出しができる。（つまり、匿名関数を匿名のまま再帰化できる）</p>
+<p>Groovyでは、暗黙的な末尾再帰最適化は行われないが、処理の最後で明示的に<tt class="docutils literal"><span class="pre">call</span></tt>の代わりに<tt class="docutils literal"><span class="pre">trampoline</span></tt>メソッドを呼び出すことで、末尾再帰最適化が行われる。ただし、末尾再帰になる（継続が不要になる）ケース以外で<tt class="docutils literal"><span class="pre">trampoline</span></tt>を使用すると、<tt class="docutils literal"><span class="pre">groovy.lang.MissingMethodException</span></tt>がthrowされる。</p>
+</div>
+<div class="section" id="id8">
+<h2><a class="toc-backref" href="#id16">遅延評価</a><a class="headerlink" href="#id8" title="Permalink to this headline">¶</a></h2>
+<p>Groovyは正格評価を基本とし、Scalaのlazyのような遅延評価指定もないが、Schemeのように、計算結果の代わりにラムダ（クロージャ）を返して呼出元で任意のタイミングで評価する手法が使える。</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">関数型プログラミング</a><ul>
+<li><a class="reference internal" href="#id2">クロージャ（関数）</a></li>
+<li><a class="reference internal" href="#id3">高階関数</a></li>
+<li><a class="reference internal" href="#id4">関数合成</a></li>
+<li><a class="reference internal" href="#sam-single-abstrcat-method">SAM (Single Abstrcat Method) 型のクロージャによる実装</a></li>
+<li><a class="reference internal" href="#id5">永続データ構造、副作用</a><ul>
+<li><a class="reference internal" href="#final">finalキーワードの扱い</a></li>
+<li><a class="reference internal" href="#id6">イミュータブルコレクション</a></li>
+<li><a class="reference internal" href="#immutable">Immutableアノテーションを使ったイミュータブル型の定義</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id7">再帰</a></li>
+<li><a class="reference internal" href="#id8">遅延評価</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="basic.html"
+                        title="previous chapter">基礎</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="collection.html"
+                        title="next chapter">コレクション</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/groovy_functional.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="collection.html" title="コレクション"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="basic.html" title="基礎"
+             >previous</a> |</li>
+        <li><a href="index.html">Groovy memo</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Kazuyuki ono(@shout_poor).
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

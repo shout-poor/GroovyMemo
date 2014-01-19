@@ -1,0 +1,180 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>GroovyインストールとEmacsへのgroovy-mode設定 &mdash; Groovy memo</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Groovy memo" href="index.html" />
+    <link rel="next" title="基礎" href="basic.html" />
+    <link rel="prev" title="Groovy memo" href="index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="basic.html" title="基礎"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Groovy memo"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Groovy memo</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="groovyemacsgroovy-mode">
+<h1>GroovyインストールとEmacsへのgroovy-mode設定<a class="headerlink" href="#groovyemacsgroovy-mode" title="Permalink to this headline">¶</a></h1>
+<p>Windows環境へのGroovy処理系インストールと、Emacs for Windowsへの組み込み方。</p>
+<div class="section" id="groovy">
+<h2>Groovy処理系のインストール<a class="headerlink" href="#groovy" title="Permalink to this headline">¶</a></h2>
+<p>参考：<a class="reference external" href="http://groovy.codehaus.org/Installing+Groovy">http://groovy.codehaus.org/Installing+Groovy</a></p>
+<ol class="arabic simple">
+<li>Java SDKが入ってなければインストールします。古いバージョンは何かと危ないので、できれば最新版に上げておきましょう。</li>
+<li>Java SDKのインストールディレクトリのフルパスを、環境変数JAVA_HOMEに設定します。</li>
+<li>Groovy のバイナリディストリビューションを<a class="reference external" href="http://groovy.codehaus.org/Download">http://groovy.codehaus.org/Download</a>からダウンロードします。（「Download Windows-Installer」を選択）</li>
+<li>ダウンロードした groovy-&lt;version&gt;.exe を実行します。x64環境の場合、デフォルトのインストールフォルダはWOW64用のフォルダ（Program Files (x86)）にインストールされるようですが、これでもx64版JavaSDKで動くようです。不安なら別のフォルダにインストールしても大丈夫。なお、最後に環境変数(GROOVY_HOME, PATH)の設定までやってくれますが、なぜか２～３分ほど待たされます。</li>
+<li>インストール終了後、コマンドラインから「groovysh」と打ち込んでインタプリタが起動すればOK。</li>
+</ol>
+</div>
+<div class="section" id="emacs">
+<h2>Emacsへの組み込み<a class="headerlink" href="#emacs" title="Permalink to this headline">¶</a></h2>
+<p>参考：<a class="reference external" href="http://groovy.codehaus.org/Emacs+Groovy+Mode">http://groovy.codehaus.org/Emacs+Groovy+Mode</a></p>
+<p>Emacs 24.3.1 for windows でやっていますが、Meadowでもいけるはず。多分。</p>
+<ol class="arabic">
+<li><p class="first">emacs groovy-mode の入手<a class="reference external" href="https://launchpad.net/groovy-emacs-mode">https://launchpad.net/groovy-emacs-mode</a>からダウンロード出来ます。tgzなファイルを解凍できない場合は、githubからZIP形式でも入手出来ます。（<a class="reference external" href="https://github.com/russel/Emacs-Groovy-Mode">https://github.com/russel/Emacs-Groovy-Mode</a>から「ZIP」ボタンをクリック）</p>
+</li>
+<li><p class="first">%home%\.emacs.d 以下に、groovy-mode のファイルを展開する。環境変数 home を設定していない場合は、C:\Users\&lt;ユーザ名&gt;\AppData\Roaming\.emacs.dになるはず(Windows Vista/7の場合)</p>
+</li>
+<li><p class="first">.emacs に以下のコードを追記する。</p>
+<div class="highlight-python"><pre>;;; Groovy-mode
+(add-to-list 'load-path "~/.emacs.d/emacs-groovy-mode")
+(autoload 'groovy-mode "groovy-mode" "Major mode for editing Groovy code." t)
+(add-to-list 'auto-mode-alist '("\.groovy$" . groovy-mode))
+(add-to-list 'interpreter-mode-alist '("grooy" . groovy-mode))
+
+;;; バッファ上のスクリプトをGroovyで実行(C-c m)
+(add-hook 'groovy-mode-hook
+          '(lambda ()
+             (require 'groovy-electric)
+             (groovy-electric-mode)))
+(defvar groovy-command "groovy %f"
+  "groovy or compatible command. %f means buffer-file")
+(setq groovy-command-line nil)
+(defun groovy-execute-argument()
+  (if (null groovy-command-line)
+      (setq groovy-command-line groovy-command))
+  (setq groovy-command-line
+        (read-string "Groovy command: " groovy-command-line))
+  (list groovy-command-line))
+(defun groovy-execute-buffer-file (arg)
+  "Execute the groovy code of this buffer."
+  (interactive (groovy-execute-argument))
+  (save-some-buffers)
+  (shell-command
+   (if (string-match "%f" groovy-command-line)
+       (replace-match (buffer-file-name) t t groovy-command-line nil)
+     groovy-command-line)))
+
+(add-hook 'groovy-mode-hook
+          (lambda () (define-key groovy-mode-map "\C-cm" 'groovy-execute-buffer-file)))
+
+(setq groovy-command "groovy %f")</pre>
+</div>
+</li>
+</ol>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">GroovyインストールとEmacsへのgroovy-mode設定</a><ul>
+<li><a class="reference internal" href="#groovy">Groovy処理系のインストール</a></li>
+<li><a class="reference internal" href="#emacs">Emacsへの組み込み</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="index.html"
+                        title="previous chapter">Groovy memo</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="basic.html"
+                        title="next chapter">基礎</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/setup_groovy_emacs.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="basic.html" title="基礎"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Groovy memo"
+             >previous</a> |</li>
+        <li><a href="index.html">Groovy memo</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Kazuyuki ono(@shout_poor).
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

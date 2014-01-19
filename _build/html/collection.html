@@ -1,0 +1,172 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>コレクション &mdash; Groovy memo</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Groovy memo" href="index.html" />
+    <link rel="next" title="ファイル入出力" href="file_io.html" />
+    <link rel="prev" title="関数型プログラミング" href="groovy_functional.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="file_io.html" title="ファイル入出力"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="groovy_functional.html" title="関数型プログラミング"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Groovy memo</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="id1">
+<h1><a class="toc-backref" href="#id4">コレクション</a><a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h1>
+<div class="contents topic" id="contents">
+<p class="topic-title first">Contents</p>
+<ul class="simple">
+<li><a class="reference internal" href="#id1" id="id4">コレクション</a><ul>
+<li><a class="reference internal" href="#id2" id="id5">標準のコレクション型</a></li>
+<li><a class="reference internal" href="#id3" id="id6">コレクションの追加メソッド</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="section" id="id2">
+<h2><a class="toc-backref" href="#id5">標準のコレクション型</a><a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
+<p>Groovyで使用されるコレクション型は、Javaで通常使用される（java.utilに含まれる）クラスと同じものとなるが、GroovyJDKにて多くのメソッドが追加されている。</p>
+</div>
+<div class="section" id="id3">
+<h2><a class="toc-backref" href="#id6">コレクションの追加メソッド</a><a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="head-tail">
+<h3>head, tail<a class="headerlink" href="#head-tail" title="Permalink to this headline">¶</a></h3>
+<p>headは先頭の1要素のみを取り出す。tailは、headで取り出した要素を除く残りの配列を返す。再帰を用いたリスト処理に便利。</p>
+</div>
+<div class="section" id="collect">
+<h3>collect<a class="headerlink" href="#collect" title="Permalink to this headline">¶</a></h3>
+<p>引数で与えたクロージャを、リストの全要素に適用し、その結果を同じコレクションで返す。いわゆる写像。</p>
+<div class="highlight-groovy"><div class="highlight"><pre><span class="kt">def</span> <span class="n">a</span> <span class="o">=</span> <span class="o">[</span><span class="mi">3</span><span class="o">,</span> <span class="mi">4</span><span class="o">,</span> <span class="mi">5</span><span class="o">]</span>
+<span class="n">println</span> <span class="n">a</span><span class="o">.</span><span class="na">collect</span> <span class="o">{</span> <span class="n">it</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">}</span>  <span class="c1">// aの各要素に2をかけた配列[6, 8, 10]が帰る</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="collectnested">
+<h3>collectNested<a class="headerlink" href="#collectnested" title="Permalink to this headline">¶</a></h3>
+<p>ネストされたリスト/配列の場合に、再帰的に全要素に対してクロージャを適用する。</p>
+<div class="highlight-groovy"><div class="highlight"><pre><span class="kt">def</span> <span class="n">a</span> <span class="o">=</span> <span class="o">[</span><span class="mi">3</span><span class="o">,</span> <span class="o">[</span><span class="mi">4</span><span class="o">,</span> <span class="mi">5</span><span class="o">],</span> <span class="mi">6</span><span class="o">,</span> <span class="mi">7</span><span class="o">]</span>
+<span class="n">println</span> <span class="n">a</span><span class="o">.</span><span class="na">collectNested</span> <span class="o">{</span> <span class="n">it</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">}</span>  <span class="c1">// [6, [8, 10], 12, 14]が帰る</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="flatten">
+<h3>flatten<a class="headerlink" href="#flatten" title="Permalink to this headline">¶</a></h3>
+<p>ネストされたリスト/配列をフラットなリスト/配列に変換する。</p>
+<div class="highlight-groovy"><div class="highlight"><pre><span class="kt">def</span> <span class="n">a</span> <span class="o">=</span> <span class="o">[</span><span class="mi">3</span><span class="o">,</span> <span class="o">[</span><span class="mi">4</span><span class="o">,</span> <span class="mi">5</span><span class="o">],</span> <span class="mi">6</span><span class="o">,</span> <span class="mi">7</span><span class="o">]</span>
+<span class="n">println</span> <span class="n">a</span><span class="o">.</span><span class="na">flatten</span><span class="o">()</span>  <span class="c1">// [3, 4, 5, 6, 7] が帰る</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">コレクション</a><ul>
+<li><a class="reference internal" href="#id2">標準のコレクション型</a></li>
+<li><a class="reference internal" href="#id3">コレクションの追加メソッド</a><ul>
+<li><a class="reference internal" href="#head-tail">head, tail</a></li>
+<li><a class="reference internal" href="#collect">collect</a></li>
+<li><a class="reference internal" href="#collectnested">collectNested</a></li>
+<li><a class="reference internal" href="#flatten">flatten</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="groovy_functional.html"
+                        title="previous chapter">関数型プログラミング</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="file_io.html"
+                        title="next chapter">ファイル入出力</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/collection.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="file_io.html" title="ファイル入出力"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="groovy_functional.html" title="関数型プログラミング"
+             >previous</a> |</li>
+        <li><a href="index.html">Groovy memo</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Kazuyuki ono(@shout_poor).
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>
